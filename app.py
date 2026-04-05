@@ -26,10 +26,12 @@ groq_client = Groq(api_key=GROQ_KEY) if GROQ_KEY and GROQ_KEY != "buraya_kendi_g
 models.Base.metadata.create_all(bind=database.engine)
 
 def text_to_ascii(text: str) -> str:
+    # Önce Türkçe karakterleri standart harflere çevir
     replacements = {'ğ': 'g', 'Ğ': 'G', 'ş': 's', 'Ş': 'S', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'Ö': 'O', 'ç': 'c', 'Ç': 'C', 'ü': 'u', 'Ü': 'U'}
     for src, dst in replacements.items():
         text = text.replace(src, dst)
-    return text
+    # Ardından PDF'in (Helvetica) desteklemediği tüm özel sembolleri (emoji vb.) temizle
+    return "".join(c for c in text if ord(c) < 128)
 
 def create_pdf(text: str) -> bytes:
     pdf = FPDF()
