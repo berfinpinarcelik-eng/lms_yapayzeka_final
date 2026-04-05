@@ -109,14 +109,17 @@ def ai_action(request: models.AIOperationRequest, db: Session = Depends(get_db))
                         "content": system_prompt,
                     }
                 ],
-                model="mixtral-8x7b-32768",
+                model="llama3-70b-8192",
             )
             response_text = chat_completion.choices[0].message.content
         else:
             raise HTTPException(status_code=400, detail="Geçersiz model adı. 'gemini' veya 'groq' kullanın.")
             
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"LLM API Hatası: {str(e)}")
+        error_msg = str(e)
+        if "429" in error_msg or "Quota exceeded" in error_msg:
+            raise HTTPException(status_code=429, detail="Google Gemini kullanım kotanız (rate limit) geçici olarak doldu. Lütfen 30 saniye bekleyip tekrar deneyin veya sol menüden Groq modeline geçiş yapın.")
+        raise HTTPException(status_code=500, detail=f"LLM API Hatası: {error_msg}")
 
     # Log the action in DB
     ai_log = models.AILog(
