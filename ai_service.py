@@ -109,7 +109,7 @@ def ai_action(request: models.AIOperationRequest, db: Session = Depends(get_db))
                         "content": system_prompt,
                     }
                 ],
-                model="llama3-70b-8192",
+                model="llama-3.3-70b-versatile",
             )
             response_text = chat_completion.choices[0].message.content
         else:
